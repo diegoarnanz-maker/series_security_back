@@ -6,6 +6,7 @@ import lombok.*;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -40,6 +41,9 @@ public class User implements Serializable, UserDetails{
         inverseJoinColumns = @JoinColumn(name = "role_id")
     )
     private List<Role> roles;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Favorite> favorites;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

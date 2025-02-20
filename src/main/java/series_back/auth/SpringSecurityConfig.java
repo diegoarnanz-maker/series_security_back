@@ -34,20 +34,33 @@ public class SpringSecurityConfig {
     }
 
     @Bean
-    SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.csrf(csrf -> csrf.disable());
-        http.cors(Customizer.withDefaults())
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http
+                .csrf(csrf -> csrf.disable())
+                .cors(Customizer.withDefaults())
 
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/auth/**").permitAll()
-                        .requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/user/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_USER")
-                        .anyRequest().authenticated());
+                        // Rutas públicas: cualquier usuario puede ver el listado de series
+                        .requestMatchers(HttpMethod.GET, "/api/series").permitAll()
 
-        http.sessionManagement(session -> session
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+                        // Rutas accesibles solo para ROLE_USER / ROLE_ADMIN
+                        .requestMatchers(HttpMethod.GET, "/api/series/{id}").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/series/genre/{genre}")
+                        .hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/series/rating/{rating}")
+                        .hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
 
-        http.httpBasic(Customizer.withDefaults());
+                        // Rutas exclusivas para ROLE_ADMIN
+                        .requestMatchers(HttpMethod.POST, "/api/series").hasAuthority("ROLE_ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/series/{id}").hasAuthority("ROLE_ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/series/{id}").hasAuthority("ROLE_ADMIN")
+
+                        // Otras rutas requieren autenticación
+                        .anyRequest().authenticated())
+
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .httpBasic(Customizer.withDefaults());
 
         return http.build();
     }
