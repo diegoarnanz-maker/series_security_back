@@ -22,6 +22,8 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @EnableWebSecurity
 public class SpringSecurityConfig {
 
+    
+
     @Bean
     PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -40,23 +42,59 @@ public class SpringSecurityConfig {
                 .cors(Customizer.withDefaults())
 
                 .authorizeHttpRequests(authorize -> authorize
+                        // AUTHORIZATION
                         .requestMatchers("/auth/**").permitAll()
-                        // Rutas públicas: cualquier usuario puede ver el listado de series
+
+                        // SERIES
+                        // Rutas públicas
                         .requestMatchers(HttpMethod.GET, "/api/series").permitAll()
-
-                        // Rutas accesibles solo para ROLE_USER / ROLE_ADMIN
-                        .requestMatchers(HttpMethod.GET, "/api/series/{id}").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/series/{id}").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/series/genre/{genre}")
-                        .hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/api/series/rating/{rating}")
-                        .hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
+                        .permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/series/rating/{rating}").permitAll()
 
-                        // Rutas exclusivas para ROLE_ADMIN
+                        // Rutas ROLE_ADMIN
                         .requestMatchers(HttpMethod.POST, "/api/series").hasAuthority("ROLE_ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/series/{id}").hasAuthority("ROLE_ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/series/{id}").hasAuthority("ROLE_ADMIN")
 
-                        // Otras rutas requieren autenticación
+                        // REVIEWS
+                        // Rutas públicas
+                        .requestMatchers(HttpMethod.GET, "/api/reviews").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/reviews/series/{seriesId}").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/reviews/rating/min/{minRating}").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/reviews/rating/range/{minRating}/{maxRating}")
+                        .permitAll()
+
+                        // Rutas ROLE_USER
+                        .requestMatchers(HttpMethod.POST, "/api/reviews").hasAuthority("ROLE_USER")
+
+                        // Rutas ROLE_ADMIN / ROLE_USER
+                        .requestMatchers(HttpMethod.GET, "/api/reviews/user/{userId}")
+                        .access((authentication, request) -> {
+                            String authenticatedUsername = authentication.get().getName();
+                            Long requestedUserId = Long.parseLong(request.getRequestURI().split("/")[4]);
+
+                            Long authenticatedUserId = userService.findByUsername(authenticatedUsername).getId(); // 🔹
+
+                            return authentication.get().getAuthorities().stream()
+                                    .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_ADMIN"))
+                                    || requestedUserId.equals(authenticatedUserId);
+                        })
+
+                        .requestMatchers(HttpMethod.DELETE, "/api/reviews/{id}")
+                        .access((authentication, request) -> {
+                            String authenticatedUsername = authentication.get().getName();
+                            Long reviewId = Long.parseLong(request.getRequestURI().split("/")[3]);
+
+                            Long authenticatedUserId = userService.findByUsername(authenticatedUsername).getId();
+
+                            return authentication.get().getAuthorities().stream()
+                                    .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_ADMIN"))
+                                    || reviewService.isReviewOwner(reviewId, authenticatedUserId);
+                        })
+
+                        // OTRAS
                         .anyRequest().authenticated())
 
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

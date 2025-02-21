@@ -77,7 +77,7 @@ public class SerieRestcontroller {
         return ResponseEntity.noContent().build();
     }
 
-    // Método para convertir `Serie` a `SerieDto`
+    // Método para convertir `Serie` a `SerieDto`, podria ir en el service
     private SerieDto convertToDto(Serie serie) {
         return SerieDto.builder()
                 .id(serie.getId())
