@@ -17,7 +17,6 @@ public class ReviewDto {
     private String comment;
     private LocalDateTime createdAt;
 
-    // ✅ Método estático para convertir una entidad Review en ReviewDto
     public static ReviewDto convertToDto(Review review) {
         return ReviewDto.builder()
                 .id(review.getId())

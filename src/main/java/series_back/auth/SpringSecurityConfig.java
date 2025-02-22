@@ -23,6 +23,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import jakarta.servlet.http.HttpServletRequest;
 import series_back.modelo.entities.User;
+import series_back.modelo.services.IFavoriteService;
 import series_back.modelo.services.IReviewService;
 import series_back.modelo.services.IUserService;
 
@@ -35,6 +36,9 @@ public class SpringSecurityConfig {
 
     @Autowired
     private IReviewService reviewService;
+
+    @Autowired
+    private IFavoriteService favoriteService;
 
     @Bean
     PasswordEncoder passwordEncoder() {
@@ -127,7 +131,54 @@ public class SpringSecurityConfig {
                                 return new AuthorizationDecision(false);
                             }
                         })
+                        
+                        // FAVORITES
+                        // Rutas ROLE_ADMIN / ROLE_USER
+                        .requestMatchers(HttpMethod.GET, "/api/favorites/user/{userId}")
+                        .access((authentication, request) -> {
+                            try {
+                                String authenticatedUsername = authentication.get().getName();
+                                HttpServletRequest httpRequest = request.getRequest();
+                                Long requestedUserId = Long.parseLong(httpRequest.getRequestURI().split("/")[4]);
 
+                                Long authenticatedUserId = userService.findByUsername(authenticatedUsername)
+                                        .map(user -> user.getId())
+                                        .orElse(null);
+
+                                return new AuthorizationDecision(
+                                        authentication.get().getAuthorities().stream()
+                                                .anyMatch(grantedAuthority -> grantedAuthority.getAuthority()
+                                                        .equals("ROLE_ADMIN"))
+                                                || requestedUserId.equals(authenticatedUserId));
+                            } catch (Exception e) {
+                                return new AuthorizationDecision(false);
+                            }
+                        })
+
+                        .requestMatchers(HttpMethod.DELETE, "/api/favorites/{seriesId}")
+                        .access((authentication, request) -> {
+                            try {
+                                String authenticatedUsername = authentication.get().getName();
+                                HttpServletRequest httpRequest = request.getRequest();
+                                Long seriesId = Long.parseLong(httpRequest.getRequestURI().split("/")[3]);
+
+                                Long authenticatedUserId = userService.findByUsername(authenticatedUsername)
+                                        .map(user -> user.getId())
+                                        .orElse(null);
+
+                                return new AuthorizationDecision(
+                                        authentication.get().getAuthorities().stream()
+                                                .anyMatch(grantedAuthority -> grantedAuthority.getAuthority()
+                                                        .equals("ROLE_ADMIN"))
+                                                || favoriteService.isFavoriteOwner(authenticatedUserId, seriesId));
+                            } catch (Exception e) {
+                                return new AuthorizationDecision(false);
+                            }
+                        })
+
+                        // ROLE_USER(owner)
+                        .requestMatchers(HttpMethod.POST, "/api/favorites")
+                        .hasAuthority("ROLE_USER")
                         // OTRAS
                         .anyRequest().authenticated())
 
