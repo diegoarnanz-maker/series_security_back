@@ -12,4 +12,6 @@ public interface ISerieService extends IGenericoCRUD<Serie, Long> {
     List<Serie> findByGenre(String genre);
     List<Serie> findByRating(Double rating);
 
+    Optional<Serie> findByTitle(String title);
+
 }

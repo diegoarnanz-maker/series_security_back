@@ -15,4 +15,7 @@ public interface IReviewRepository extends JpaRepository<Review, Long> {
     List<Review> findByRatingGreaterThanEqual(Double minRating);
 
     List<Review> findByRatingBetween(Double minRating, Double maxRating);
+
+    boolean existsByIdAndUserId(Long reviewId, Long userId);
+
 }

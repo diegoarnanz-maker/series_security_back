@@ -20,4 +20,6 @@ public interface IReviewService extends IGenericoCRUD<Review, Long> {
     List<ReviewDto> findByMinRating(Double minRating);
 
     List<ReviewDto> findByRatingRange(Double minRating, Double maxRating);
+
+    boolean isReviewOwner(Long reviewId, Long userId);
 }

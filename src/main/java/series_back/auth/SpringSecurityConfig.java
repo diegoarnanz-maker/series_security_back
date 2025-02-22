@@ -2,15 +2,18 @@ package series_back.auth;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -18,11 +21,20 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import jakarta.servlet.http.HttpServletRequest;
+import series_back.modelo.entities.User;
+import series_back.modelo.services.IReviewService;
+import series_back.modelo.services.IUserService;
+
 @Configuration
 @EnableWebSecurity
 public class SpringSecurityConfig {
 
-    
+    @Autowired
+    private IUserService userService;
+
+    @Autowired
+    private IReviewService reviewService;
 
     @Bean
     PasswordEncoder passwordEncoder() {
@@ -72,26 +84,48 @@ public class SpringSecurityConfig {
                         // Rutas ROLE_ADMIN / ROLE_USER
                         .requestMatchers(HttpMethod.GET, "/api/reviews/user/{userId}")
                         .access((authentication, request) -> {
-                            String authenticatedUsername = authentication.get().getName();
-                            Long requestedUserId = Long.parseLong(request.getRequestURI().split("/")[4]);
+                            try {
+                                String authenticatedUsername = authentication.get().getName();
+                                HttpServletRequest httpRequest = request.getRequest();
+                                Long requestedUserId = Long.parseLong(httpRequest.getRequestURI().split("/")[4]);
 
-                            Long authenticatedUserId = userService.findByUsername(authenticatedUsername).getId(); // 🔹
+                                User authenticatedUser = userService.findByUsername(authenticatedUsername)
+                                        .orElseThrow(() -> new UsernameNotFoundException(
+                                                "Usuario no encontrado: " + authenticatedUsername));
 
-                            return authentication.get().getAuthorities().stream()
-                                    .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_ADMIN"))
-                                    || requestedUserId.equals(authenticatedUserId);
+                                boolean isAdmin = authentication.get().getAuthorities().stream()
+                                        .anyMatch(grantedAuthority -> grantedAuthority.getAuthority()
+                                                .equals("ROLE_ADMIN"));
+
+                                return new AuthorizationDecision(
+                                        isAdmin || requestedUserId.equals(authenticatedUser.getId()));
+                            } catch (Exception e) {
+                                return new AuthorizationDecision(false);
+                            }
                         })
 
                         .requestMatchers(HttpMethod.DELETE, "/api/reviews/{id}")
                         .access((authentication, request) -> {
-                            String authenticatedUsername = authentication.get().getName();
-                            Long reviewId = Long.parseLong(request.getRequestURI().split("/")[3]);
+                            try {
+                                String authenticatedUsername = authentication.get().getName();
+                                HttpServletRequest httpRequest = request.getRequest();
+                                Long reviewId = Long.parseLong(httpRequest.getRequestURI().split("/")[3]);
 
-                            Long authenticatedUserId = userService.findByUsername(authenticatedUsername).getId();
+                                User authenticatedUser = userService.findByUsername(authenticatedUsername)
+                                        .orElseThrow(() -> new UsernameNotFoundException(
+                                                "Usuario no encontrado: " + authenticatedUsername));
 
-                            return authentication.get().getAuthorities().stream()
-                                    .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_ADMIN"))
-                                    || reviewService.isReviewOwner(reviewId, authenticatedUserId);
+                                boolean isAdmin = authentication.get().getAuthorities().stream()
+                                        .anyMatch(grantedAuthority -> grantedAuthority.getAuthority()
+                                                .equals("ROLE_ADMIN"));
+
+                                boolean isReviewOwner = reviewService.isReviewOwner(reviewId,
+                                        authenticatedUser.getId());
+
+                                return new AuthorizationDecision(isAdmin || isReviewOwner);
+                            } catch (Exception e) {
+                                return new AuthorizationDecision(false);
+                            }
                         })
 
                         // OTRAS

@@ -79,4 +79,17 @@ public class SerieServiceImplMy8 extends GenericoCRUDServiceImplMy8<Serie, Long>
             throw new RuntimeException("Error al buscar series por rating.");
         }
     }
+
+    @Override
+    public Optional<Serie> findByTitle(String title) {
+        try {
+            if (title == null || title.isEmpty()) {
+                throw new IllegalArgumentException("El título de la serie no puede estar vacío.");
+            }
+            return serieRepository.findByTitle(title);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Error al buscar la serie por título.");
+        }
+    }
 }

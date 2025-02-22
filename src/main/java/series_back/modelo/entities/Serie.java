@@ -10,6 +10,8 @@ import java.util.Set;
 
 import org.hibernate.annotations.CreationTimestamp;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 @Table(name = "series")
 @Getter
@@ -46,6 +48,7 @@ public class Serie implements Serializable {
     @Column(name = "trailer_url")
     private String trailerUrl;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "series", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Favorite> usersFavorited;
 
