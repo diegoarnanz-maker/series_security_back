@@ -58,10 +58,10 @@ public class SpringSecurityConfig {
                 .cors(Customizer.withDefaults())
 
                 .authorizeHttpRequests(authorize -> authorize
-                        // AUTHORIZATION
+                    // AUTHORIZATION
                         .requestMatchers("/auth/**").permitAll()
 
-                        // SERIES
+                    // SERIES
                         // Rutas públicas
                         .requestMatchers(HttpMethod.GET, "/api/series").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/series/{id}").permitAll()
@@ -74,7 +74,7 @@ public class SpringSecurityConfig {
                         .requestMatchers(HttpMethod.PUT, "/api/series/{id}").hasAuthority("ROLE_ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/series/{id}").hasAuthority("ROLE_ADMIN")
 
-                        // REVIEWS
+                    // REVIEWS
                         // Rutas públicas
                         .requestMatchers(HttpMethod.GET, "/api/reviews").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/reviews/series/{seriesId}").permitAll()
@@ -131,8 +131,8 @@ public class SpringSecurityConfig {
                                 return new AuthorizationDecision(false);
                             }
                         })
-                        
-                        // FAVORITES
+
+                    // FAVORITES
                         // Rutas ROLE_ADMIN / ROLE_USER
                         .requestMatchers(HttpMethod.GET, "/api/favorites/user/{userId}")
                         .access((authentication, request) -> {
@@ -177,8 +177,20 @@ public class SpringSecurityConfig {
                         })
 
                         // ROLE_USER(owner)
-                        .requestMatchers(HttpMethod.POST, "/api/favorites")
-                        .hasAuthority("ROLE_USER")
+                        // .requestMatchers(HttpMethod.POST, "/api/favorites")
+                        // .hasAuthority("ROLE_USER")
+
+                    // USER
+                        // ROLE_ADMIN
+                        .requestMatchers(HttpMethod.GET, "/api/users").hasAuthority("ROLE_ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/users/{id}").hasAuthority("ROLE_ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/users").hasAuthority("ROLE_ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/users/{id}").hasAuthority("ROLE_ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/users/{id}").hasAuthority("ROLE_ADMIN")
+
+                        // ROLE_ADMIN / ROLE_USER(owner)
+                        .requestMatchers(HttpMethod.GET, "/api/users/me").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
+
                         // OTRAS
                         .anyRequest().authenticated())
 

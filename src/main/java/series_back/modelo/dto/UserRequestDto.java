@@ -1,9 +1,11 @@
 package series_back.modelo.dto;
 
-import java.util.List;
+import java.util.Set;
 
 import lombok.*;
 import series_back.modelo.entities.Role;
+import series_back.modelo.entities.User;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 @Data
 @NoArgsConstructor
@@ -14,13 +16,14 @@ public class UserRequestDto {
     private String username;
     private String email;
     private String password;
-    private List<Role> roles;
+    private Set<Role> roles;
 
-    // Para test
-    // public UserRequestDto(String username, String email, String password) {
-    // this.username = username;
-    // this.email = email;
-    // this.password = password;
-    // }
-
+    public User convertToEntity() {
+        return User.builder()
+                .username(this.username)
+                .email(this.email)
+                .password(new BCryptPasswordEncoder().encode(this.password))
+                .roles(this.roles)
+                .build();
+    }
 }

@@ -100,8 +100,9 @@ public class AuthRestcontroller {
                     .username(userDto.getUsername())
                     .email(userDto.getEmail())
                     .password(encodedPassword)
-                    .roles(Collections.singletonList(userRole.get()))
+                    .roles(Collections.singleton(userRole.get()))
                     .build();
+
             User newUser = userService.create(user);
 
             return ResponseEntity.status(201).body(newUser);
