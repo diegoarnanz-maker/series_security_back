@@ -191,6 +191,8 @@ public class SpringSecurityConfig {
                         // ROLE_ADMIN / ROLE_USER(owner)
                         .requestMatchers(HttpMethod.GET, "/api/users/me").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
 
+                        .requestMatchers(HttpMethod.GET, "/api/users/username/{username}").hasAnyAuthority("ROLE_USER",
+                                "ROLE_ADMIN")
                         // OTRAS
                         .anyRequest().authenticated())
 

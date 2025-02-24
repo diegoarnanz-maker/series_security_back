@@ -178,18 +178,34 @@ public class UserRestcontroller {
         return ResponseEntity.noContent().build();
     }
 
+    @GetMapping("/findByUsername/{username}")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_USER')")
+    public ResponseEntity<?> getUsuarioByUsername(@PathVariable String username) {
+        Optional<User> userOptional = userService.findByUsername(username);
+
+        if (userOptional.isPresent()) {
+            UserDto userDto = UserDto.convertToDto(userOptional.get());
+            return ResponseEntity.ok(userDto);
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("message", "Usuario no encontrado"));
+        }
+    }
+
     // RUTAS USER / ADMIN
     // @GetMapping("/me")
     // @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
-    // public ResponseEntity<?> getAuthenticatedUser(Authentication authentication) {
-    //     System.out.println("Usuario autenticado: " + authentication.getName());
+    // public ResponseEntity<?> getAuthenticatedUser(Authentication authentication)
+    // {
+    // System.out.println("Usuario autenticado: " + authentication.getName());
 
-    //     authentication.getAuthorities()
-    //             .forEach(auth -> System.out.println("Rol detectado por Spring Security: " + auth.getAuthority()));
+    // authentication.getAuthorities()
+    // .forEach(auth -> System.out.println("Rol detectado por Spring Security: " +
+    // auth.getAuthority()));
 
-    //     return userService.findByUsername(authentication.getName())
-    //             .map(ResponseEntity::ok)
-    //             .orElse(ResponseEntity.notFound().build());
+    // return userService.findByUsername(authentication.getName())
+    // .map(ResponseEntity::ok)
+    // .orElse(ResponseEntity.notFound().build());
     // }
 
 }
