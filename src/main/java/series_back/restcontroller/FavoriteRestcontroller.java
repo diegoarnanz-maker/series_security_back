@@ -18,10 +18,15 @@ import series_back.modelo.services.IUserService;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @RestController
 @RequestMapping("api/favorites")
 @CrossOrigin(origins = "*")
 public class FavoriteRestcontroller {
+
+    private static final Logger logger = LoggerFactory.getLogger(FavoriteRestcontroller.class);
 
     @Autowired
     private IFavoriteService favoriteService;
@@ -33,16 +38,34 @@ public class FavoriteRestcontroller {
     private ISerieService serieService;
 
     // RUTAS USER(owner) / ADMIN
-    @GetMapping("/user/{userId}")
+    @GetMapping("/user/id/{userId}")
     @PreAuthorize("hasAuthority('ROLE_ADMIN') or #userId == authentication.principal.id")
     public ResponseEntity<List<FavoriteDto>> getUserFavorites(@PathVariable Long userId,
             Authentication authentication) {
         List<FavoriteDto> favorites = favoriteService.findByUserId(userId)
                 .stream()
-                .map(favorite -> FavoriteDto.convertToDto(favorite))
+                .map(FavoriteDto::convertToDto) // Ahora incluirá seriesId
                 .collect(Collectors.toList());
         return ResponseEntity.ok(favorites);
     }
+
+    // @GetMapping("/user/{username}")
+    // public ResponseEntity<List<Favorite>> getFavoritesByUsername(
+    // @PathVariable String username,
+    // Authentication authentication) {
+
+    // // Debug logs
+    // logger.info("🔍 Autenticado como: {}", authentication.getName());
+    // logger.info("📌 Nombre en la URL: {}", username);
+    // logger.info("🔑 Roles: {}", authentication.getAuthorities());
+
+    // List<Favorite> favorites = favoriteService.findByUsername(username);
+    // List<FavoriteDto> favoriteDtos = favorites.stream()
+    // .map(FavoriteDto::convertToDto)
+    // .collect(Collectors.toList());
+
+    // return ResponseEntity.ok(favoriteDtos);
+    // }
 
     @DeleteMapping("/{seriesId}")
     @PreAuthorize("hasAuthority('ROLE_ADMIN') or @favoriteService.isFavoriteOwner(authentication.principal.id, #seriesId)")

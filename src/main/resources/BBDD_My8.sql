@@ -82,10 +82,10 @@ INSERT INTO user_roles (user_id, role_id) VALUES
 
 -- Insertar series
 INSERT INTO series (title, description, genre, release_year, rating, image_url, trailer_url) VALUES
-('Breaking Bad', 'Un profesor de química se convierte en narcotraficante.', 'Drama', 2008, 9.5, 'breakingbad.jpg', 'https://youtu.be/HhesaQXLuRY'),
-('Stranger Things', 'Un grupo de niños se enfrenta a amenazas sobrenaturales.', 'Ciencia Ficción', 2016, 8.7, 'strangerthings.jpg', 'https://youtu.be/b9EkMc79ZSU'),
-('The Witcher', 'Un cazador de monstruos mutante busca su destino en un mundo hostil.', 'Acción', 2019, 7.9, 'thewitcher.jpg', 'https://youtu.be/tjujvMkqWe4'),
-('Dark', 'Una serie de misterio y viajes en el tiempo en un pequeño pueblo alemán.', 'Ciencia Ficción', 2017, 8.8, 'dark.jpg', 'https://youtu.be/ESEUoa-mz2c'),
+('Breaking Bad', 'Un profesor de química se convierte en narcotraficante.', 'Drama', 2008, 9.5, 'https://img.freepik.com/free-vector/mysterious-mafia-man-smoking-cigarette_52683-34828.jpg?t=st=1740509072~exp=1740512672~hmac=92dab8aef9a0e8472bb06199b10f24e304c451989c229fbede5234a97efbe715&w=1800', 'https://youtu.be/HhesaQXLuRY'),
+('Stranger Things', 'Un grupo de niños se enfrenta a amenazas sobrenaturales.', 'Ciencia Ficción', 2016, 8.7, 'https://img.freepik.com/free-photo/portrait-extraterrestrial-creature-alien_23-2151451353.jpg?t=st=1740509134~exp=1740512734~hmac=cba11cbc88537d3dfd7da38b9164bb97bd9dc57abffd10198fb7f9c72faf31c9&w=2000', 'https://youtu.be/b9EkMc79ZSU'),
+('The Witcher', 'Un cazador de monstruos mutante busca su destino en un mundo hostil.', 'Acción', 2019, 7.9, 'https://img.freepik.com/free-vector/hand-drawn-halloween-background_52683-43480.jpg?t=st=1740509178~exp=1740512778~hmac=c75bd9adbe33f146d740955a4cf61b12745fe4dae5adc924b6acf5fb65eacdee&w=2000', 'https://youtu.be/tjujvMkqWe4'),
+('Dark', 'Una serie de misterio y viajes en el tiempo en un pequeño pueblo alemán.', 'Ciencia Ficción', 2017, 8.8, 'https://img.freepik.com/free-photo/morning-dew_181624-306.jpg?t=st=1740508202~exp=1740511802~hmac=a1a81569a32ba8bdb0676325502411017c642696396c861db9558680932a4f0c&w=2000', 'https://youtu.be/ESEUoa-mz2c'),
 ('La Casa de Papel', 'Un grupo de criminales ejecuta el atraco más grande de la historia de España.', 'Drama', 2017, 8.2, 'lacasadepapel.jpg', 'https://youtu.be/_InqQJRqGW4');
 
 -- Insertar valoraciones (reviews)

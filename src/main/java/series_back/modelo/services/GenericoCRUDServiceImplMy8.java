@@ -26,7 +26,6 @@ public abstract class GenericoCRUDServiceImplMy8<E, ID> implements IGenericoCRUD
                 throw new IllegalArgumentException("La entidad no puede ser nula");
             }
 
-            // Agregar logs para ver qué datos llegan antes de guardar
             System.out.println("DEBUG: Entidad recibida para guardar: " + entity);
 
             return getRepository().save(entity);

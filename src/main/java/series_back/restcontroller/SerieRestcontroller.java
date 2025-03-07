@@ -44,6 +44,16 @@ public class SerieRestcontroller {
         return ResponseEntity.ok(seriesDtoList);
     }
 
+    @GetMapping("/genres")
+    public ResponseEntity<List<String>> getGenres() {
+        List<String> genres = serieService.findAll().stream()
+                .map(Serie::getGenre)
+                .distinct()
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(genres);
+    }
+
     @GetMapping("/rating/{rating}")
     public ResponseEntity<List<SerieDto>> getSeriesByRating(@PathVariable Double rating) {
         List<SerieDto> seriesDtoList = serieService.findByRating(rating)

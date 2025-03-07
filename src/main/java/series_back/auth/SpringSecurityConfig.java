@@ -58,14 +58,16 @@ public class SpringSecurityConfig {
                 .cors(Customizer.withDefaults())
 
                 .authorizeHttpRequests(authorize -> authorize
-                    // AUTHORIZATION
+                        // AUTHORIZATION
                         .requestMatchers("/auth/**").permitAll()
 
-                    // SERIES
+                        // SERIES
                         // Rutas públicas
                         .requestMatchers(HttpMethod.GET, "/api/series").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/series/{id}").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/series/genre/{genre}")
+                        .permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/series/genre")
                         .permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/series/rating/{rating}").permitAll()
 
@@ -74,7 +76,7 @@ public class SpringSecurityConfig {
                         .requestMatchers(HttpMethod.PUT, "/api/series/{id}").hasAuthority("ROLE_ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/series/{id}").hasAuthority("ROLE_ADMIN")
 
-                    // REVIEWS
+                        // REVIEWS
                         // Rutas públicas
                         .requestMatchers(HttpMethod.GET, "/api/reviews").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/reviews/series/{seriesId}").permitAll()
@@ -132,9 +134,29 @@ public class SpringSecurityConfig {
                             }
                         })
 
-                    // FAVORITES
+                        // FAVORITES
                         // Rutas ROLE_ADMIN / ROLE_USER
                         .requestMatchers(HttpMethod.GET, "/api/favorites/user/{userId}")
+                        .access((authentication, request) -> {
+                            try {
+                                String authenticatedUsername = authentication.get().getName();
+                                HttpServletRequest httpRequest = request.getRequest();
+                                Long requestedUserId = Long.parseLong(httpRequest.getRequestURI().split("/")[4]);
+
+                                Long authenticatedUserId = userService.findByUsername(authenticatedUsername)
+                                        .map(user -> user.getId())
+                                        .orElse(null);
+
+                                return new AuthorizationDecision(
+                                        authentication.get().getAuthorities().stream()
+                                                .anyMatch(grantedAuthority -> grantedAuthority.getAuthority()
+                                                        .equals("ROLE_ADMIN"))
+                                                || requestedUserId.equals(authenticatedUserId));
+                            } catch (Exception e) {
+                                return new AuthorizationDecision(false);
+                            }
+                        })
+                        .requestMatchers(HttpMethod.GET, "/api/favorites/user/{username}")
                         .access((authentication, request) -> {
                             try {
                                 String authenticatedUsername = authentication.get().getName();
@@ -180,7 +202,7 @@ public class SpringSecurityConfig {
                         // .requestMatchers(HttpMethod.POST, "/api/favorites")
                         // .hasAuthority("ROLE_USER")
 
-                    // USER
+                        // USER
                         // ROLE_ADMIN
                         .requestMatchers(HttpMethod.GET, "/api/users").hasAuthority("ROLE_ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/users/{id}").hasAuthority("ROLE_ADMIN")

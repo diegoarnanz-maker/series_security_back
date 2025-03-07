@@ -2,7 +2,6 @@ package series_back.modelo.services;
 
 import java.util.List;
 
-import series_back.modelo.dto.FavoriteDto;
 import series_back.modelo.entities.Favorite;
 
 public interface IFavoriteService extends IGenericoCRUD<Favorite, Long> {
@@ -12,5 +11,7 @@ public interface IFavoriteService extends IGenericoCRUD<Favorite, Long> {
     void deleteByUserIdAndSeriesId(Long userId, Long seriesId);
 
     boolean isFavoriteOwner(Long userId, Long seriesId);
+
+    List<Favorite> findByUsername(String username);
 
 }
