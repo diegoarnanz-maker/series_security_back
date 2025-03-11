@@ -44,7 +44,8 @@ public class ReviewServiceImplMy8 extends GenericoCRUDServiceImplMy8<Review, Lon
             throw new IllegalArgumentException("El ID de la serie no puede ser nulo.");
         }
         List<Review> reviews = reviewRepository.findBySeriesId(seriesId);
-        return reviews.isEmpty() ? List.of() : reviews.stream().map(ReviewDto::convertToDto).collect(Collectors.toList());
+        return reviews.isEmpty() ? List.of()
+                : reviews.stream().map(ReviewDto::convertToDto).collect(Collectors.toList());
     }
 
     @Override
@@ -53,7 +54,8 @@ public class ReviewServiceImplMy8 extends GenericoCRUDServiceImplMy8<Review, Lon
             throw new IllegalArgumentException("El rating mínimo no puede ser nulo.");
         }
         List<Review> reviews = reviewRepository.findByRatingGreaterThanEqual(minRating);
-        return reviews.isEmpty() ? List.of() : reviews.stream().map(ReviewDto::convertToDto).collect(Collectors.toList());
+        return reviews.isEmpty() ? List.of()
+                : reviews.stream().map(ReviewDto::convertToDto).collect(Collectors.toList());
     }
 
     @Override
@@ -65,11 +67,18 @@ public class ReviewServiceImplMy8 extends GenericoCRUDServiceImplMy8<Review, Lon
             throw new IllegalArgumentException("El rating mínimo no puede ser mayor al rating máximo.");
         }
         List<Review> reviews = reviewRepository.findByRatingBetween(minRating, maxRating);
-        return reviews.isEmpty() ? List.of() : reviews.stream().map(ReviewDto::convertToDto).collect(Collectors.toList());
+        return reviews.isEmpty() ? List.of()
+                : reviews.stream().map(ReviewDto::convertToDto).collect(Collectors.toList());
     }
 
     @Override
     public boolean isReviewOwner(Long reviewId, Long userId) {
         return reviewRepository.existsByIdAndUserId(reviewId, userId);
     }
+
+    @Override
+    public boolean existsByUserAndSeries(Long userId, Long seriesId) {
+        return reviewRepository.existsByUserIdAndSeriesId(userId, seriesId);
+    }
+
 }

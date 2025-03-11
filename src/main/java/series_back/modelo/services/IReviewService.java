@@ -22,4 +22,7 @@ public interface IReviewService extends IGenericoCRUD<Review, Long> {
     List<ReviewDto> findByRatingRange(Double minRating, Double maxRating);
 
     boolean isReviewOwner(Long reviewId, Long userId);
+
+    boolean existsByUserAndSeries(Long userId, Long seriesId);
+
 }

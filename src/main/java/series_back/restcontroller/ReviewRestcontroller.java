@@ -67,6 +67,13 @@ public class ReviewRestcontroller {
                     .orElseThrow(() -> new RuntimeException(
                             "Usuario no encontrado con username: " + reviewDto.getUsername()));
 
+            // 🔹 Verificar si el usuario ya tiene una reseña para esta serie
+            boolean reviewExists = reviewService.existsByUserAndSeries(user.getId(), series.getId());
+            if (reviewExists) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body("Ya has realizado una reseña para esta serie.");
+            }
+
             Review review = new Review();
             review.setSeries(series);
             review.setUser(user);

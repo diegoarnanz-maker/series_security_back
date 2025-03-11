@@ -18,4 +18,6 @@ public interface IReviewRepository extends JpaRepository<Review, Long> {
 
     boolean existsByIdAndUserId(Long reviewId, Long userId);
 
+    boolean existsByUserIdAndSeriesId(Long userId, Long seriesId);
+
 }

@@ -12,5 +12,5 @@ public interface ISerieRepository extends JpaRepository<Serie, Long> {
     Optional<Serie> findByTitle(String title);
     List<Serie> findByGenreContainingIgnoreCase(String genre);
     List<Serie> findByRatingGreaterThanEqual(Double rating);
-
+    List<Serie> findTop3ByOrderByIdDesc();
 }

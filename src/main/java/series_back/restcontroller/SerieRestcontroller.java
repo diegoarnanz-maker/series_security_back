@@ -64,6 +64,16 @@ public class SerieRestcontroller {
         return ResponseEntity.ok(seriesDtoList);
     }
 
+    @GetMapping("/latest")
+    public ResponseEntity<List<SerieDto>> getLatestSeries() {
+        List<SerieDto> latestSeries = serieService.findLatestSeries()
+                .stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(latestSeries);
+    }
+
     // RUTAS ADMIN
     @PostMapping
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")

@@ -92,4 +92,9 @@ public class SerieServiceImplMy8 extends GenericoCRUDServiceImplMy8<Serie, Long>
             throw new RuntimeException("Error al buscar la serie por título.");
         }
     }
+
+    @Override
+    public List<Serie> findLatestSeries() {
+        return serieRepository.findTop3ByOrderByIdDesc();
+    }
 }

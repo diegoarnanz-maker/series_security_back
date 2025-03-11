@@ -59,8 +59,9 @@ public class SpringSecurityConfig {
 
                 .authorizeHttpRequests(authorize -> authorize
                         // AUTHORIZATION
-                        .requestMatchers("/auth/**").permitAll()
-
+                        .requestMatchers("/auth/login", "/auth/register").permitAll()
+                        .requestMatchers("/auth/me").authenticated()
+                        
                         // SERIES
                         // Rutas públicas
                         .requestMatchers(HttpMethod.GET, "/api/series").permitAll()
@@ -70,6 +71,7 @@ public class SpringSecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/series/genre")
                         .permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/series/rating/{rating}").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/series/latest").permitAll()
 
                         // Rutas ROLE_ADMIN
                         .requestMatchers(HttpMethod.POST, "/api/series").hasAuthority("ROLE_ADMIN")

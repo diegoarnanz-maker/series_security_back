@@ -9,15 +9,19 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import series_back.modelo.dto.LoginDto;
+import series_back.modelo.dto.UserDto;
 import series_back.modelo.dto.UserRequestDto;
 import series_back.modelo.entities.Role;
 import series_back.modelo.entities.User;
@@ -68,7 +72,6 @@ public class AuthRestcontroller {
         return ResponseEntity.ok(Map.of("message", "Logout exitoso"));
     }
 
-    // @PostMapping("/me")
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody UserRequestDto userDto) {
         try {
@@ -110,5 +113,14 @@ public class AuthRestcontroller {
         } catch (Exception e) {
             return ResponseEntity.status(500).body(Map.of("message", "Error al registrar el usuario"));
         }
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<UserDto> getAuthenticatedUser(Authentication authentication) {
+        String username = authentication.getName();
+        User user = userService.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado: " + username));
+
+        return ResponseEntity.ok(UserDto.convertToDto(user));
     }
 }
